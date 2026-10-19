@@ -5,11 +5,6 @@ FORMATO ISTANZA (testo):
     i j w          (E righe: edge {i,j} con costo w)
     i1 j1 i2 j2    (K righe: l'edge {i1,j1} e' in conflitto con l'edge {i2,j2})
 
-I conflitti si specificano con le coppie di NODI degli archi coinvolti.
-
-Uso:
-inserire come input il nome del file contenente l'istanza (istanza.txt)
-facendo attenzione a inserire file e modello py nella stessa cartella.
 """
 
 from mip import Model, xsum, GUROBI, MINIMIZE, INTEGER, BINARY, OptimizationStatus
@@ -29,13 +24,9 @@ def leggi_istanza(path):
         i, j, w = r.split()
         archi.append((int(i), int(j), float(w)))
 
-    # dizionario per risalire all'indice di un edge a partire dai suoi nodi
     # (la coppia viene ordinata per non dipendere dal verso i-j oppure j-i)
     indice_edge = {tuple(sorted((i, j))): e for e, (i, j, w) in enumerate(archi)}
 
-    # tutte le righe restanti dopo gli archi sono conflitti: non ci si basa sul
-    # valore K dichiarato in testa al file (potrebbe essere soggetto a errori di distrazione),
-    # ma in base al numero di righe di conflitti.
     righe_conflitti = righe[2 + E:]
     if len(righe_conflitti) != K:
         print(f"Attenzione: il file dichiara K={K} conflitti ma ne contiene {len(righe_conflitti)}; "
@@ -73,10 +64,10 @@ def main():
     x_ij = [m.add_var(var_type=INTEGER, lb=0, name=f"x_{i}_{j}") for i, j, w in archi]
     x_ji = [m.add_var(var_type=INTEGER, lb=0, name=f"x_{j}_{i}") for i, j, w in archi]
 
-    # funzione obiettivo (1)
+    # funzione obiettivo (a)
     m.objective = xsum(archi[e][2] * y[e] for e in range(E))
 
-    # vincoli di conservazione del flusso (2)
+    # vincoli di conservazione del flusso (b)
     for nodo in range(V):
         entra = xsum(x_ji[e] for e, (i, j, w) in enumerate(archi) if i == nodo) + \
                 xsum(x_ij[e] for e, (i, j, w) in enumerate(archi) if j == nodo)
@@ -85,12 +76,12 @@ def main():
         rhs = -(V - 1) if nodo == s else 1
         m += entra - esce == rhs
 
-    # vincoli di capacita' (3) e (4)
+    # vincoli di capacita' (c) e (d)
     for e in range(E):
         m += x_ij[e] <= (V - 1) * y[e]
         m += x_ji[e] <= (V - 1) * y[e]
 
-    # vincoli di conflitto (5)
+    # vincoli di conflitto (e)
     for e1, e2 in conflitti:
         m += y[e1] + y[e2] <= 1
 
