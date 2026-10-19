@@ -1,29 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Euristica multi-start per il Minimum Spanning Tree con Conflitti (MSTC).
-
-Procedura (ad ogni tentativo):
-  1. si ordinano gli archi per costi crescenti (a ogni tentativo; gli archi
-     di pari costo sono ordinati in modo casuale, per ottenere ordinamenti
-     diversi);
-  2. si scorre la lista e si costruisce S aggiungendo un arco solo se non e'
-     in conflitto con nessun arco gia' in S;
-  3. se (V, S) e' connesso si calcola l'MST su S con Prim (ammissibile, perche'
-     sottoinsieme di S); altrimenti il tentativo viene scartato;
-  4. si conserva la soluzione migliore.
-
-Per ogni istanza si riportano valore della funzione obiettivo e tempo di calcolo.
-
-L'euristica non richiede alcun solver: usa solo la libreria standard di Python.
-A ogni istanza la soluzione viene controllata con una verifica indipendente
-(albero ricoprente, nessun conflitto, costo coerente).
-
-Uso:
-    python mstc_multistart.py "istanza 1_03.txt"
-    python mstc_multistart.py cartella_istanze/ --starts 2000 --seed 1
-"""
-
 import argparse
 import heapq
 import os
@@ -32,9 +8,7 @@ import sys
 import time
 
 # ==========================================================================
-# SCRIVI QUI il percorso della cartella con le istanze (oppure di un file).
-# Se lanci lo script senza argomenti, usa questo percorso.
-# Esempi:  CARTELLA_ISTANZE = "istanze"
+#          CARTELLA_ISTANZE = "istanze"
 #          CARTELLA_ISTANZE = r"C:\Users\nome\Desktop\istanze"
 # ==========================================================================
 CARTELLA_ISTANZE = r"C:\Users\frank\OneDrive\Desktop\TESI\python\Istanze tipo 1\Istanze"
@@ -183,7 +157,7 @@ def euristica_multistart(ist, n_start=5000, tempo_max=None, seed=0):
 
 
 # --------------------------------------------------------------------------
-# Controllo indipendente di ammissibilita'
+# Controllo di ammissibilita'
 # --------------------------------------------------------------------------
 def verifica_soluzione(ist, albero, costo_dichiarato):
     """Controlla: V-1 archi distinti, albero ricoprente (union-find), nessuna
